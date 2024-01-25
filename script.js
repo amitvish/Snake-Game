@@ -1,5 +1,6 @@
 const gameArea = document.getElementById('gameArea');
 const gameOverElement = document.getElementById('gameOver');
+const scoreElement = document.getElementById('currentScore'); // Score display element
 const gameSize = 400;
 const gridSize = 20;
 let snake = [{ x: gridSize * 5, y: gridSize * 5 }];
@@ -11,22 +12,20 @@ let gameIsOver = false;
 function update() {
     if (gameIsOver) return;
 
-    // Update the snake's position
     let head = { x: snake[0].x + velocity.x, y: snake[0].y + velocity.y };
     snake.unshift(head);
 
     if (head.x === food.x && head.y === food.y) {
-        score += 1; // Increase score
-        // Generate new food location
+        score += 1;
+        updateScoreDisplay(); // Update score display
         food = {
             x: Math.floor(Math.random() * (gameSize / gridSize)) * gridSize,
             y: Math.floor(Math.random() * (gameSize / gridSize)) * gridSize
         };
     } else {
-        snake.pop(); // Remove the tail
+        snake.pop();
     }
 
-    // Check for collision with walls or itself
     if (head.x < 0 || head.x >= gameSize || head.y < 0 || head.y >= gameSize || snake.slice(1).some(segment => segment.x === head.x && segment.y === head.y)) {
         gameOver();
     } else {
@@ -35,17 +34,12 @@ function update() {
 }
 
 function draw() {
-    gameArea.innerHTML = ''; // Clear the game area
-
+    gameArea.innerHTML = '';
     snake.forEach((segment, index) => {
         let snakeElement = document.createElement('div');
         snakeElement.style.left = segment.x + 'px';
         snakeElement.style.top = segment.y + 'px';
-        if (index === 0) {
-            snakeElement.classList.add('snake-head'); // Class for the head
-        } else {
-            snakeElement.classList.add('snake'); // Class for the body
-        }
+        snakeElement.classList.add(index === 0 ? 'snake-head' : 'snake');
         gameArea.appendChild(snakeElement);
     });
 
@@ -57,17 +51,22 @@ function draw() {
 }
 
 function gameOver() {
-    gameOverElement.style.display = 'block'; // Show game over message
-    document.getElementById('score').innerText = score; // Display score
+    gameOverElement.style.display = 'block';
+    document.getElementById('score').innerText = score;
     gameIsOver = true;
 }
 
 function restartGame() {
     gameIsOver = false;
-    gameOverElement.style.display = 'none'; // Hide game over message
-    snake = [{ x: gridSize * 5, y: gridSize * 5 }]; // Reset the snake
-    velocity = { x: 0, y: 0 }; // Stop movement
+    gameOverElement.style.display = 'none';
+    snake = [{ x: gridSize * 5, y: gridSize * 5 }];
+    velocity = { x: 0, y: 0 };
     score = 0; // Reset score
+    updateScoreDisplay(); // Update score display
+}
+
+function updateScoreDisplay() {
+    scoreElement.innerText = score; // Update score text
 }
 
 document.addEventListener('keydown', e => {
